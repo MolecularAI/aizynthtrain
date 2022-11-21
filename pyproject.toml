@@ -15,7 +15,7 @@ sklearn = "^0.0"
 nbconvert = "^7.2.3"
 pydantic = "^1.10.2"
 aizynthfinder = {url = "https://github.com/MolecularAI/aizynthfinder/archive/refs/tags/v3.4.0.tar.gz"}
-reaction-utils = {url = "https://github.com/MolecularAI/reaction_utils/archive/refs/tags/v1.1.1.tar.gz"}
+reaction-utils = "^1.2.0"
 
 [tool.poetry.dev-dependencies]
 
