@@ -8,9 +8,6 @@ import tqdm
 
 
 FILES_TO_DOWNLOAD = [
-    {"url": "", "filename": "routes_for_eval.json"},
-    {"url": "", "filename": "smiles_for_eval.txt"},
-    {"url": "", "filename": "stock_for_eval_recov.txt"},
     {
         "url": "https://ndownloader.figshare.com/files/23086469",
         "filename": "stock_for_eval_find.hdf5",
@@ -43,6 +40,9 @@ FILES_TO_COPY = [
     "expansion_model_pipeline_config.yml",
     "ringbreaker_model_pipeline_config.yml",
     "template_pipeline_config.yml",
+    "routes_for_eval.json",
+    "smiles_for_eval.txt",
+    "stock_for_eval_recov.txt"
 ]
 
 if __name__ == "__main__":
