@@ -1,0 +1,7 @@
+name: aizynthtrain
+channels:
+  - https://conda.anaconda.org/conda-forge
+  - defaults
+dependencies:
+  - python>=3.8,<3.10
+  - poetry>=1.1.4,<2.0

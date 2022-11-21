@@ -1,0 +1,6 @@
+expansion_model_pipeline:
+  python_kernel: aizynthtrain
+  file_prefix: uspto_ringbreaker
+
+expansion_model_evaluation:
+  file_prefix: uspto_ringbreaker

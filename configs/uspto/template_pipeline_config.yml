@@ -1,0 +1,8 @@
+template_pipeline:
+  python_kernel: aizynthtrain
+  data_import_class: aizynthtrain.data.uspto.UsptoImporter
+  data_import_config:
+    data_path: uspto_data_mapped.csv
+  selected_templates_prefix: uspto
+  min_template_occurrence: 3
+  

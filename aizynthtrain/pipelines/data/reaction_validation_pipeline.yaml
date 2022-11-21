@@ -1,0 +1,46 @@
+remove_unsanitizable:
+  in_column: rsmi
+  out_column: rsmi_processed
+reagents2reactants:
+  in_column: rsmi_processed
+  out_column: rsmi_processed
+reactants2reagents:
+  in_column: rsmi_processed
+  out_column: rsmi_processed
+remove_extra_atom_mapping:
+  in_column: rsmi_processed
+  out_column: rsmi_processed
+neutralize_molecules:
+  in_column: rsmi_processed
+  out_column: rsmi_processed
+remove_unsanitizable2:
+  in_column: rsmi_processed
+  out_column: rsmi_processed
+  bad_column: BadMolecules2
+remove_unchanged_products:
+  in_column: rsmi_processed
+  out_column: rsmi_processed
+count_components:
+  in_column: rsmi_processed
+pseudo_reaction_hash:
+  in_column: rsmi_processed
+  no_reagents: True
+count_elements:
+  in_column: rsmi_processed
+productsize:
+  in_column: rsmi_processed
+product_atommapping_stats:
+  in_column: rsmi_processed
+hasunmappedradicalatom:
+  in_column: rsmi_processed
+unsanitizablereactants:
+  rsmi_column: rsmi_processed
+  bad_columns:
+    - BadMolecules
+    - BadMolecules2
+ringnumberchange:
+  in_column: rsmi_processed
+ringbondmade:
+  in_column: rsmi_processed
+ringmadesize:
+  in_column: rsmi_processed
