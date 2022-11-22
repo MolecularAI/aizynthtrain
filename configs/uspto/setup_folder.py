@@ -12,8 +12,14 @@ FILES_TO_DOWNLOAD = [
         "url": "https://ndownloader.figshare.com/files/23086469",
         "filename": "stock_for_eval_find.hdf5",
     },
-    {"url": "", "filename": "ref_routes_n1.json"},
-    {"url": "", "filename": "ref_routes_n2.json"},
+    {
+        "url": "https://zenodo.org/record/7341155/files/ref_routes_n1.json?download=1",
+        "filename": "ref_routes_n1.json",
+    },
+    {
+        "url": "https://zenodo.org/record/7341155/files/ref_routes_n5.json?download=1",
+        "filename": "ref_routes_n5.json",
+    },
 ]
 
 
@@ -42,7 +48,7 @@ FILES_TO_COPY = [
     "template_pipeline_config.yml",
     "routes_for_eval.json",
     "smiles_for_eval.txt",
-    "stock_for_eval_recov.txt"
+    "stock_for_eval_recov.txt",
 ]
 
 if __name__ == "__main__":
