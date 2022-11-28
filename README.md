@@ -108,5 +108,7 @@ The software is licensed under the Appache 2.0 license (see LICENSE file), and i
 
 ## References
 
-1. Thakkar A, Kogej T, Reymond J-L, et al (2019) Datasets and their influence on the development of computer assisted synthesis planning tools in the pharmaceutical domain. Chem Sci. https://doi.org/10.1039/C9SC04944D
-2. Genheden S, Thakkar A, Chadimova V, et al (2020) AiZynthFinder: a fast, robust and flexible open-source software for retrosynthetic planning. ChemRxiv. Preprint. https://doi.org/10.26434/chemrxiv.12465371.v1
+1. Genheden S, Norrby PO, Engkvist O (2022) AiZynthTrain: robust, reproducible, and extensible pipelines for training synthesis prediction models. ChemRxiv. Prerint. https://doi.org/10.26434/chemrxiv-2022-kls5q
+2. Kannas C, Thakkar A, Bjerrum E, Genheden S (2022) rxnutils – A Cheminformatics Python Library for Manipulating Chemical Reaction Data. ChemRxiv. https://doi.org/10.26434/chemrxiv-2022-wt440-v2
+3. Genheden S, Thakkar A, Chadimova V, et al (2020) AiZynthFinder: a fast, robust and flexible open-source software for retrosynthetic planning. J. Cheminf. https://jcheminf.biomedcentral.com/articles/10.1186/s13321-020-00472-1
+4. Thakkar A, Kogej T, Reymond J-L, et al (2019) Datasets and their influence on the development of computer assisted synthesis planning tools in the pharmaceutical domain. Chem Sci. https://doi.org/10.1039/C9SC04944D
