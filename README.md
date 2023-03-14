@@ -31,6 +31,8 @@ Now, you need to create a Jupyter Kernel for this environment
 
 ## Usage
 
+### Expansion model
+
 There is a number of example configurations and SLURM scripts in the `configs/uspto` folder that
 was used to retrain the USPTO-based expansion model for AiZynthFinder.
 
@@ -68,6 +70,36 @@ The expansion model pipeline will produce these important artifacts
 - `uspto_unique_templates.csv.gz` the template library for AiZynthFinder
 
 You can also execute the `configs/uspto/ringbreaker_pipeline.sh` to train a RingBreaker model.
+
+### Filter model
+
+There is an example configuration file for the pipeline model in `configs/example.yml`.
+
+The input file should be name `${file_prefix}_filter_library.csv` which is a tab-separated file with two columns.
+The column names are defaulted to `reaction_smiles` and `label`. 
+
+Full options can be found in the `aizynthtrain.utils.configs.py` module. 
+
+To create the model, execute the following steps
+
+1. Create a new folder where the pipeline will be executed
+
+2. Activate the conda environment
+
+
+    conda activate aizynthtrain
+
+
+3. Execute the following command to run the pipeline
+
+
+    python -m aizynthtrain.pipelines.filter_model_pipeline run --config example.yml
+
+
+The pipeine will produce these important artifacts:
+
+- `example_filter_model_report.html` that is the rport of the model training
+- `example_keras_model.hdf5` the trained Keras model
 
 ### Testing
 
