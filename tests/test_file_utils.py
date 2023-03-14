@@ -1,6 +1,7 @@
 import os
 
 import pandas as pd
+import numpy as np
 import pytest
 from scipy import sparse
 
@@ -11,6 +12,7 @@ from aizynthtrain.utils.files import (
     read_csv_batch,
     combine_csv_batches,
     combine_sparse_matrix_batches,
+    combine_numpy_array_batches,
 )
 
 
@@ -119,3 +121,30 @@ def test_combine_sparse_matrix_batches(tmpdir):
         0,
     ]
     assert sparse.load_npz(filename).toarray().flatten().tolist() == expected
+
+
+def test_combine_numpy_array_batches(tmpdir):
+    filename1 = str(tmpdir / "temp.0.npz")
+    np.savez(filename1, np.array([0, 0, 0, 1]), compressed=True)
+    filename2 = str(tmpdir / "temp.1.npz")
+    np.savez(filename2, np.array([1, 1, 1, 0]), compressed=True)
+    filename = str(tmpdir / "temp.npz")
+
+    assert os.path.exists(filename1)
+    assert os.path.exists(filename2)
+
+    combine_numpy_array_batches(filename, 2)
+
+    assert not os.path.exists(filename1)
+    assert not os.path.exists(filename2)
+    expected = [
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+    ]
+    assert np.load(filename)["arr_0"].tolist() == expected

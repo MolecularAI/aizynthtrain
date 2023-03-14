@@ -1,9 +1,11 @@
 """Module containing utility classes and routines used in training of policies"""
 import functools
+import logging
+import os
 from typing import List, Any, Tuple
 
 import numpy as np
-
+import tensorflow
 from tensorflow.config import list_physical_devices
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
@@ -16,6 +18,12 @@ from tensorflow.keras.callbacks import (
 )
 from tensorflow.keras.metrics import top_k_categorical_accuracy
 from scipy import sparse
+
+# Suppress tensforflow logging
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
+tf_logger = tensorflow.get_logger()
+tf_logger.setLevel(logging.WARNING)
 
 top10_acc = functools.partial(top_k_categorical_accuracy, k=10)
 top10_acc.__name__ = "top10_acc"  # type: ignore

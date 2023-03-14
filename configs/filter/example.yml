@@ -1,0 +1,4 @@
+filter_model_pipeline:
+  nbatches: 8
+  python_kernel: aizynthtrain
+  file_prefix: example 

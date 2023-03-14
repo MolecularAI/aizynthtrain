@@ -4,6 +4,7 @@ import os
 from typing import List, Tuple, Any
 
 import pandas as pd
+import numpy as np
 from scipy import sparse
 
 
@@ -61,11 +62,36 @@ def combine_sparse_matrix_batches(filename: str, nbatches: int) -> None:
     def _write_matrix(data: Any, filename: str) -> None:
         sparse.save_npz(filename, data, compressed=True)
 
-    def _combine_matrix(data: pd.DataFrame, temp_data: pd.DataFrame) -> pd.DataFrame:
+    def _combine_matrix(data: Any, temp_data: Any) -> Any:
         return sparse.vstack([data, temp_data])
 
     return _combine_batches(
         filename, nbatches, _read_matrix, _write_matrix, _combine_matrix
+    )
+
+
+def combine_numpy_array_batches(filename: str, nbatches: int) -> None:
+    """
+    Combine numpy array batches to one master file
+
+    The batch files are removed from disc
+
+    :param filename: the filename of the master file
+    :param nbatches: the number of batches
+    """
+
+    def _read_array(filename: str, idx: int) -> Any:
+        filename2 = filename.replace(".npz", f".{idx}.npz")
+        return np.load(filename2)["arr_0"], filename2
+
+    def _write_array(data: np.ndarray, filename: str) -> None:
+        np.savez(filename, data, compressed=True)
+
+    def _combine_array(data: np.ndarray, temp_data: np.ndarray) -> np.ndarray:
+        return np.hstack([data, temp_data])
+
+    return _combine_batches(
+        filename, nbatches, _read_array, _write_array, _combine_array
     )
 
 
@@ -129,3 +155,33 @@ def read_csv_batch(
         skiprows=range(1, batch_start + 1),
         **kwargs,
     )
+
+
+def save_numpy_array(
+    array: np.ndarray, filename: str, batch: Tuple[int, ...] = None
+) -> None:
+    """
+    Save numpy array with optional batch index
+
+    :param array: the array to save
+    :param filename: the base filename
+    :param batch: an optional batch specification
+    """
+    if batch is not None:
+        filename = filename.replace(".npz", f".{batch[0]}.npz")
+    np.savez(filename, array, compressed=True)
+
+
+def save_sparse_matrix(
+    matrix: Any, filename: str, batch: Tuple[int, ...] = None
+) -> None:
+    """
+    Save sparse matrix with optional batch index
+
+    :param matrix: the matrix to save
+    :param filename: the base filename
+    :param batch: an optional batch specification
+    """
+    if batch is not None:
+        filename = filename.replace(".npz", f".{batch[0]}.npz")
+    sparse.save_npz(filename, matrix, compressed=True)
