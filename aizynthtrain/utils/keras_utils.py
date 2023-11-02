@@ -114,7 +114,7 @@ def train_keras_model(
     :param epochs: the number of epochs to use
     """
     print(f"Available GPUs: {list_physical_devices('GPU')}")
-    adam = Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0)
+    adam = Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999)
 
     model.compile(
         optimizer=adam,

@@ -187,7 +187,7 @@ def main(args: Optional[Sequence[str]] = None) -> None:
     ref_reactions_path = args.test_library or _create_test_reaction(config)
 
     config_path = _create_config(
-        args.model_path or config.filename("training_checkpoint"),
+        args.model_path or config.filename("onnx_model"),
         args.templates_path or config.filename("unique_templates"),
     )
 

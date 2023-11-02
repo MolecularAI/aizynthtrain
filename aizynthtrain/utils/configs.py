@@ -104,6 +104,8 @@ class ExpansionModelPipelinePostfixes(BaseModel):
     model_inputs: str = "inputs.npz"
     training_log: str = "keras_training.csv"
     training_checkpoint: str = "keras_model.hdf5"
+    onnx_model: str = "expansion.onnx"
+    
     report: str = "expansion_model_report.html"
     finder_output: str = "model_validation_finder_output.hdf5"
     multistep_report: str = "model_validation_multistep_report.json"

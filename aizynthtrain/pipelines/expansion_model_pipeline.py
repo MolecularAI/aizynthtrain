@@ -3,30 +3,20 @@ from pathlib import Path
 
 from metaflow import FlowSpec, Parameter, step
 
+from aizynthtrain.utils.onnx_converter import main as convert_to_onnx
 from aizynthtrain.modelling.expansion_policy.create_template_lib import (
     main as create_template_lib,
-)
-from aizynthtrain.modelling.expansion_policy.featurize import (
-    main as featurize,
-)
-from aizynthtrain.modelling.expansion_policy.split_data import (
-    main as split_data,
-)
-from aizynthtrain.modelling.expansion_policy.training import (
-    main as training_runner,
-)
-from aizynthtrain.modelling.expansion_policy.eval_one_step import (
-    main as eval_one_step,
 )
 from aizynthtrain.modelling.expansion_policy.eval_multi_step import (
     main as eval_multi_step,
 )
+from aizynthtrain.modelling.expansion_policy.eval_one_step import main as eval_one_step
+from aizynthtrain.modelling.expansion_policy.featurize import main as featurize
+from aizynthtrain.modelling.expansion_policy.split_data import main as split_data
+from aizynthtrain.modelling.expansion_policy.training import main as training_runner
+from aizynthtrain.utils.configs import ExpansionModelPipelineConfig, load_config
+from aizynthtrain.utils.files import combine_sparse_matrix_batches, create_csv_batches
 from aizynthtrain.utils.reporting import main as report_runner
-from aizynthtrain.utils.files import create_csv_batches, combine_sparse_matrix_batches
-from aizynthtrain.utils.configs import (
-    ExpansionModelPipelineConfig,
-    load_config,
-)
 
 
 class ExpansionModelFlow(FlowSpec):
@@ -91,6 +81,17 @@ class ExpansionModelFlow(FlowSpec):
         """Train the expansion model"""
         if not Path(self.config.filename("training_checkpoint")).exists():
             training_runner([self.config_path])
+        self.next(self.onnx_converter)
+
+    @step
+    def onnx_converter(self):
+        """Convert the trained Keras model to ONNX"""
+        convert_to_onnx(
+            [
+                self.config.filename("training_checkpoint"),
+                self.config.filename("onnx_model"),
+            ]
+        )
         self.next(self.model_validation)
 
     @step

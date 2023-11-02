@@ -120,7 +120,7 @@ def main(args: Optional[Sequence[str]] = None) -> None:
 
     if config.stock_for_finding and config.target_smiles:
         finder_config_path = _create_config(
-            args.model_path or config.filename("training_checkpoint"),
+            args.model_path or config.filename("onnx_model"),
             args.templates_path or config.filename("unique_templates"),
             config.stock_for_finding,
             config.properties_for_finding,
@@ -131,7 +131,7 @@ def main(args: Optional[Sequence[str]] = None) -> None:
 
     if config.stock_for_recovery and config.reference_routes:
         finder_config_path = _create_config(
-            args.model_path or config.filename("training_checkpoint"),
+            args.model_path or config.filename("onnx_model"),
             args.templates_path or config.filename("unique_templates"),
             config.stock_for_recovery,
             config.properties_for_recovery,
