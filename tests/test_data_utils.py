@@ -99,3 +99,16 @@ def test_split_uneven_three():
     assert len(val_indices) + len(test_indices) == 1
     assert set(val_indices).intersection(train_indices) == set()
     assert set(val_indices).intersection(test_indices) == set()
+
+
+def test_split_low_data():
+    df = pd.DataFrame({"A": [1]})
+
+    val_indices = []
+    train_indices = []
+
+    split_data(df, 0.99, 666, train_indices, val_indices)
+
+    assert len(train_indices) == 1
+    assert len(val_indices) == 0
+

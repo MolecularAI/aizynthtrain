@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aizynthtrain"
-version = "0.1.0"
+version = "0.2.0"
 description = "Tools to train reaction predictions models for AiZynthFinder"
 authors = ["Genheden, Samuel <samuel.genheden@astrazeneca.com>"]
 license = "Apache 2.0"
@@ -14,8 +14,10 @@ mendeleev = "^0.10.0"
 sklearn = "^0.0"
 nbconvert = "^7.2.3"
 pydantic = "^1.10.2"
+onnx = "^1.13.1"
+tf2onnx = "^1.13.0"
 aizynthfinder = {url = "https://github.com/MolecularAI/aizynthfinder/archive/refs/tags/v3.4.0.tar.gz"}
-reaction-utils = "^1.2.0"
+reaction-utils = {url = "https://github.com/MolecularAI/reaction_utils/archive/refs/tags/v1.1.1.tar.gz"}
 
 [tool.poetry.dev-dependencies]
 
