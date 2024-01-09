@@ -1,7 +1,7 @@
 """Module containing utility routines for data manipulation"""
 import json
 import random
-from typing import List, Set, Dict, Any
+from typing import List, Set, Dict, Any, Optional
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -40,7 +40,7 @@ def split_data(
     random_seed: int,
     train_indices: List[int],
     val_indices: List[int],
-    test_indices: List[int] = None,
+    test_indices: Optional[List[int]] = None,
 ) -> None:
     """
     Split a dataframe into training, validation and optionally test partitions
@@ -64,7 +64,10 @@ def split_data(
     """
     if len(group_data) > 1:
         train_arr, val_arr = train_test_split(
-            group_data.index, train_size=train_frac, random_state=random_seed, shuffle=True
+            group_data.index,
+            train_size=train_frac,
+            random_state=random_seed,
+            shuffle=True,
         )
     else:
         train_arr = list(group_data.index)

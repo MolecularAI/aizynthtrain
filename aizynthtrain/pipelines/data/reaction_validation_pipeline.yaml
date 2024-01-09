@@ -1,5 +1,8 @@
-remove_unsanitizable:
+isotope_info:
   in_column: rsmi
+  out_column: rsmi_processed
+remove_unsanitizable:
+  in_column: rsmi_processed
   out_column: rsmi_processed
 reagents2reactants:
   in_column: rsmi_processed
@@ -38,9 +41,15 @@ unsanitizablereactants:
   bad_columns:
     - BadMolecules
     - BadMolecules2
+maxrings:
+  in_column: rsmi_processed
 ringnumberchange:
   in_column: rsmi_processed
 ringbondmade:
   in_column: rsmi_processed
 ringmadesize:
+  in_column: rsmi_processed
+cgr_created:
+  in_column: rsmi_processed
+cgr_dynamic_bonds:
   in_column: rsmi_processed

@@ -1,9 +1,9 @@
 """Module containing configuration classes"""
 import sys
-from typing import Dict, Optional, List, Any, Union
+from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field
 import yaml
+from pydantic import BaseModel, Field
 
 
 def load_config(filename: str, class_key: str) -> Any:
@@ -57,11 +57,65 @@ class TemplatePipelineConfig(BaseModel):
     validated_reactions_path: str = "validated_reactions.csv"
     selected_reactions_path: str = "selected_reactions.csv"
     reaction_report_path: str = "reaction_selection_report.html"
+    stereo_reactions_path: str = "stereo_reactions.csv"
+    selected_stereo_reactions_path: str = "selected_stereo_reactions.csv"
+    stereo_report_path: str = "stereo_selection_report.html"
     unvalidated_templates_path: str = "reaction_templates_unvalidated.csv"
     validated_templates_path: str = "reaction_templates_validated.csv"
     templates_report_path: str = "template_selection_report.html"
     min_template_occurrence: int = 10
     nbatches: int = 200
+
+
+# Config classes for the chemformer model pipelines
+
+
+class ChemformerTrainConfig(BaseModel):
+    """Configuration class for chemformer training"""
+
+    data_path: str = "proc_selected_reactions.csv"
+    vocabulary_path: str = "bart_vocab_disconnection_aware.json"
+    task: str = "backward_prediction"
+    model_path: Optional[str] = None
+    deepspeed_config_path: str = "ds_config.json"
+    output_directory: str = ""
+
+    n_epochs: int = 70
+    n_gpus: int = 1
+    batch_size: int = 64
+    augmentation_probability: float = 0.5
+    learning_rate: float = 0.001
+
+    check_val_every_n_epoch: int = 1
+    checkpoint_every_n_step: int = 25000
+    limit_val_batches: float = 1.0
+    augmentation_strategy: str = "all"
+    n_nodes: int = 1
+    acc_batches: int = 4
+    schedule: str = "cycle"
+    dataset_type: str = "synthesis"
+
+    # Arguments for model from random initialization
+    d_model: int = 512
+    n_layer: int = 6
+    n_heads: int = 8
+    d_feedforward: int = 2048
+
+
+class ChemformerDataPrepConfig(BaseModel):
+    """Configuration class for chemformer data-prep pipeline"""
+
+    selected_reactions_path: str = "selected_reactions.csv"
+    reaction_components_path: str = "reaction_components.csv"
+    routes_to_exclude: List[str] = Field(default_factory=list)
+    training_fraction: float = 0.9
+    random_seed: int = 11
+    nbatches: int = 200
+    chemformer_data_path: str = "proc_selected_reactions.csv"
+
+    reaction_hash_col: str = "reaction_hash"
+    set_col: str = "set"
+    is_external_col: str = "is_external"
 
 
 # Config classes for the expansion model pipeline
@@ -78,6 +132,8 @@ class TemplateLibraryColumnsConfig(BaseModel):
     library_occurrence: str = "library_occurence"
     classification: Optional[str] = "classification"
     ring_breaker: Optional[str] = "ring_breaker"
+    stereo_bucket: Optional[str] = "stereo_bucket"
+    flipped_stereo: Optional[str] = "flipped_stereo"
 
 
 class TemplateLibraryConfig(BaseModel):
@@ -105,7 +161,7 @@ class ExpansionModelPipelinePostfixes(BaseModel):
     training_log: str = "keras_training.csv"
     training_checkpoint: str = "keras_model.hdf5"
     onnx_model: str = "expansion.onnx"
-    
+
     report: str = "expansion_model_report.html"
     finder_output: str = "model_validation_finder_output.hdf5"
     multistep_report: str = "model_validation_multistep_report.json"
@@ -122,6 +178,7 @@ class ExpansionModelHyperparamsConfig(BaseModel):
     hidden_nodes: int = 512
     dropout: int = 0.4
     epochs: int = 100
+    chirality: bool = False
 
 
 class ExpansionModelPipelineConfig(BaseModel, _FilenameMixin):
@@ -148,10 +205,10 @@ class ExpansionModelEvaluationConfig(BaseModel, _FilenameMixin):
 
     stock_for_finding: str = ""
     stock_for_recovery: str = ""
-    properties_for_finding: Dict[str, Any] = Field(
+    search_properties_for_finding: Dict[str, Any] = Field(
         default_factory=lambda: {"return_first": True}
     )
-    properties_for_recovery: Dict[str, Any] = Field(
+    search_properties_for_recovery: Dict[str, Any] = Field(
         default_factory=lambda: {
             "max_transforms": 10,
             "iteration_limit": 500,

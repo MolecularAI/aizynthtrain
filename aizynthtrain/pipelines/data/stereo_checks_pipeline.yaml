@@ -1,0 +1,16 @@
+has_stereo_info:
+    in_column: rsmi_processed
+query_dataframe:
+        query: HasStereo == True
+stereo_centre_changes:
+     in_column: rsmi_processed
+stereo_chiral_reagent:
+     in_column: rsmi_processed
+stereo_centre_created:
+stereo_centre_removed:
+potential_stereo_center:
+    in_column: rsmi_processed
+stereo_centre_outside:
+    in_column: rsmi_processed
+meso_product:
+    in_column: rsmi_processed

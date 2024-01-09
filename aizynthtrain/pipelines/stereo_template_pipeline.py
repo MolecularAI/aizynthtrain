@@ -1,9 +1,9 @@
 """Module containing preparing a template library"""
 from pathlib import Path
-import importlib
 
 from metaflow import FlowSpec, Parameter, step
 from rxnutils.pipeline.runner import main as validation_runner
+from rxnutils.data.batch_utils import create_csv_batches, combine_csv_batches
 
 from aizynthtrain.utils.configs import (
     load_config,
@@ -11,11 +11,11 @@ from aizynthtrain.utils.configs import (
 )
 from aizynthtrain.utils.reporting import main as selection_runner
 from aizynthtrain.utils.template_runner import main as template_runner
+from aizynthtrain.utils.stereo_flipper import main as stereo_flipper
 from aizynthtrain.utils.files import prefix_filename
-from rxnutils.data.batch_utils import create_csv_batches, combine_csv_batches
 
 
-class TemplatesExtractionFlow(FlowSpec):
+class StereoTemplatesExtractionFlow(FlowSpec):
     config_path = Parameter("config", required=True)
 
     @step
@@ -24,46 +24,34 @@ class TemplatesExtractionFlow(FlowSpec):
         self.config: TemplatePipelineConfig = load_config(
             self.config_path, "template_pipeline"
         )
-        self.next(self.import_data)
+        self.next(self.stereo_checks_setup)
 
     @step
-    def import_data(self):
-        """Importing and transforming reaction data"""
-        if not Path(self.config.import_data_path).exists():
-            module_name, cls_name = self.config.data_import_class.rsplit(
-                ".", maxsplit=1
-            )
-            loaded_module = importlib.import_module(module_name)
-            importer = getattr(loaded_module, cls_name)(
-                **self.config.data_import_config
-            )
-            importer.data.to_csv(self.config.import_data_path, sep="\t", index=False)
-        self.next(self.reaction_validation_setup)
-
-    @step
-    def reaction_validation_setup(self):
-        """Preparing splits of the reaction data for reaction validation"""
+    def stereo_checks_setup(self):
+        """Preparing splits of the reaction data for stereo checks"""
         self.reaction_partitions = self._create_batches(
-            self.config.import_data_path, self.config.validated_reactions_path
+            self.config.selected_reactions_path.replace(".csv", "_all.csv"),
+            self.config.stereo_reactions_path,
         )
-        self.next(self.reaction_validation, foreach="reaction_partitions")
+        self.next(self.stereo_checks, foreach="reaction_partitions")
 
     @step
-    def reaction_validation(self):
+    def stereo_checks(self):
         """Validating reaction data"""
         pipeline_path = str(
-            Path(__file__).parent / "data" / "reaction_validation_pipeline.yaml"
+            Path(__file__).parent / "data" / "stereo_checks_pipeline.yaml"
         )
         idx, start, end = self.input
-        if idx > -1:
+        batch_output = f"{self.config.stereo_reactions_path}.{idx}"
+        if idx > -1 and not Path(batch_output).exists():
             validation_runner(
                 [
                     "--pipeline",
                     pipeline_path,
                     "--data",
-                    self.config.import_data_path,
+                    self.config.selected_reactions_path.replace(".csv", "_all.csv"),
                     "--output",
-                    f"{self.config.validated_reactions_path}.{idx}",
+                    batch_output,
                     "--max-workers",
                     "1",
                     "--batch",
@@ -72,34 +60,36 @@ class TemplatesExtractionFlow(FlowSpec):
                     "--no-intermediates",
                 ]
             )
-        self.next(self.reaction_validation_join)
+        else:
+            print(
+                f"Skipping template extraction for idx {idx}. File exists = {Path(batch_output).exists()}"
+            )
+        self.next(self.stereo_checks_join)
 
     @step
-    def reaction_validation_join(self, inputs):
-        """Joining validated reactions"""
+    def stereo_checks_join(self, inputs):
+        """Joining stereo reactions"""
         self.config = inputs[0].config
-        self._combine_batches(self.config.validated_reactions_path)
-        self.next(self.reaction_selection)
+        self._combine_batches(self.config.stereo_reactions_path)
+        self.next(self.stereo_selection)
 
     @step
-    def reaction_selection(self):
-        """Selecting reactions and producing report"""
-        notebook_path = str(
-            Path(__file__).parent / "notebooks" / "reaction_selection.py"
-        )
-        if not Path(self.config.selected_reactions_path).exists():
+    def stereo_selection(self):
+        """Selecting stereo reactions and producing report"""
+        notebook_path = str(Path(__file__).parent / "notebooks" / "stereo_selection.py")
+        if not Path(self.config.selected_stereo_reactions_path).exists():
             selection_runner(
                 [
                     "--notebook",
                     notebook_path,
                     "--report_path",
-                    self.config.reaction_report_path,
+                    self.config.stereo_report_path,
                     "--python_kernel",
                     self.config.python_kernel,
                     "--input_filename",
-                    self.config.validated_reactions_path,
+                    self.config.stereo_reactions_path,
                     "--output_filename",
-                    self.config.selected_reactions_path,
+                    self.config.selected_stereo_reactions_path,
                 ]
             )
         self.next(self.template_extraction_setup)
@@ -108,7 +98,8 @@ class TemplatesExtractionFlow(FlowSpec):
     def template_extraction_setup(self):
         """Preparing splits of the reaction data for template extraction"""
         self.reaction_partitions = self._create_batches(
-            self.config.selected_reactions_path, self.config.unvalidated_templates_path
+            self.config.selected_stereo_reactions_path,
+            self.config.unvalidated_templates_path,
         )
         self.next(self.template_extraction, foreach="reaction_partitions")
 
@@ -121,7 +112,7 @@ class TemplatesExtractionFlow(FlowSpec):
             template_runner(
                 [
                     "--input_path",
-                    self.config.selected_reactions_path,
+                    self.config.selected_stereo_reactions_path,
                     "--output_path",
                     batch_output,
                     "--radius",
@@ -180,6 +171,14 @@ class TemplatesExtractionFlow(FlowSpec):
                     "--no-intermediates",
                 ]
             )
+            stereo_flipper(
+                [
+                    "--input_path",
+                    f"{self.config.validated_templates_path}.{idx}",
+                    "--query",
+                    "StereoBucket=='reagent controlled'",
+                ]
+            )
         self.next(self.template_validation_join)
 
     @step
@@ -193,7 +192,7 @@ class TemplatesExtractionFlow(FlowSpec):
     def template_selection(self):
         """Selection templates and produce report"""
         notebook_path = str(
-            Path(__file__).parent / "notebooks" / "template_selection.py"
+            Path(__file__).parent / "notebooks" / "stereo_template_selection.py"
         )
         output_path = prefix_filename(
             self.config.selected_templates_prefix,
@@ -225,7 +224,7 @@ class TemplatesExtractionFlow(FlowSpec):
     @step
     def end(self):
         print(
-            f"Report on extracted reaction is located here: {self.config.reaction_report_path}"
+            f"Report on extracted reaction is located here: {self.config.stereo_report_path}"
         )
         print(
             f"Report on extracted templates is located here: {self.config.templates_report_path}"
@@ -239,4 +238,4 @@ class TemplatesExtractionFlow(FlowSpec):
 
 
 if __name__ == "__main__":
-    TemplatesExtractionFlow()
+    StereoTemplatesExtractionFlow()

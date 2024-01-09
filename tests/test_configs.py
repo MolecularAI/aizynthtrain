@@ -70,7 +70,7 @@ def test_expansion_model_evaluation_config(make_config_file):
         "file_prefix": "uspto",
         "stock_for_finding": "stock_for_eval_find.hdf5",
         "target_smiles": "target_smiles",
-        "properties_for_finding": {},
+        "search_properties_for_finding": {},
     }
     filename = make_config_file({"expansion_model_evaluation": dict_})
 
@@ -80,7 +80,7 @@ def test_expansion_model_evaluation_config(make_config_file):
     assert config.file_prefix == dict_["file_prefix"]
     assert config.stock_for_finding == dict_["stock_for_finding"]
     assert config.target_smiles == dict_["target_smiles"]
-    assert config.properties_for_finding == {}
+    assert config.search_properties_for_finding == {}
 
     assert (
         config.filename("multistep_report")

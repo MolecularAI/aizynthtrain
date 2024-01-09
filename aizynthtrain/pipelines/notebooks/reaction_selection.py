@@ -63,6 +63,10 @@ def make_stats_by_sources(data):
 sel = data["classification"].str.startswith("0.0 ")
 print_(f"Total number of extracted reactions = {len(data)}")
 print_(f"Number of unrecognized reactions = {sel.sum()} ({sel.mean()*100:.2f}%)")
+nisotopes = (~data["Isotope"].isna()).sum()
+print_(f"Number of reactions with isotope information = {nisotopes}")
+ndeuterium = (data["Isotope"] == "2H").sum()
+print_(f"Number of reactions with deuterium = {ndeuterium}")
 
 bad_molecules = list()
 sel = ~data.BadMolecules.isna()
@@ -94,16 +98,16 @@ _ = ax.set_title("Distribution of number of products")
 """
 ## Removing reactions based on these filters
 
-- # products should be 1
-- # reactants should be between 1 and 5
-- # un-mapped product atoms should be less than 5
-- # of widow atoms should be less than 5
+- no. products should be 1
+- no. reactants should be between 1 and 5
+- no. un-mapped product atoms should be less than 3
+- no. of widow atoms should be less than 5
 - all reactants should be sanitizable
 """
 
 # %%
 NREACTANTS_LIMIT = 5
-UNMAPPED_PROD_LIMIT = 5
+UNMAPPED_PROD_LIMIT = 3
 WIDOWS_LIMIT = 5
 
 sel_too_many_prod = data["NProducts"] > 1
@@ -144,9 +148,14 @@ data = data[
 
 - the reactants must be different than the products
 - no wild card atoms
-- the size of the product atom should be in the top 97% percentile
+- the no the product atoms should be between the 3% and 97% percentile
 - there should not be any un-mapped radicals
 - the elements in the reactants should be likely
+- the reaction class should not be 11. or 12.
+- the CGR should be possible to create
+- the number of dynamic bonds should not be more than 10
+- the reaction should not have more than 2 sibling reactions
+- the reaction should not have more than 12 rings
 """
 
 # %%
@@ -161,8 +170,13 @@ print_(f"Removing {sel_unchanged.sum()} reactions with the same reactants and pr
 sel_wildcard_atom = data["rsmi_processed"].str.contains("*", regex=False)
 print_(f"Removing {sel_wildcard_atom.sum()} reactions with wild card atoms")
 
+percentile03 = data.ProductSize.quantile(0.03)
 percentile97 = data.ProductSize.quantile(0.97)
+sel_small = data.ProductSize < percentile03
 sel_big = data.ProductSize > percentile97
+print_(
+    f"Removing {sel_small.sum()} reactions with product size smaller than {percentile03} (3% percentile)"
+)
 print_(
     f"Removing {sel_big.sum()} reactions with product size larger than {percentile97} (97% percentile)"
 )
@@ -210,12 +224,54 @@ elements = ", ".join(
 print_(f"Elements considered to be unlikely: {elements}")
 
 # %%
+unwanted_classes = data.classification.str.startswith(("11.", "12."))
+print_(
+    f"Removing {unwanted_classes.sum()} reactions with unwanted reaction classes (11., 12.)"
+)
+
+sel_cgr_creation = ~data.CGRCreated
+print_(
+    f"Removing {sel_cgr_creation.sum()} reactions where the CGR could not be created"
+)
+
+DYNAMIC_BOND_LIMIT = 10
+sel_dynamic_bond = data.NDynamicBonds > DYNAMIC_BOND_LIMIT
+print_(
+    f"Removing {sel_dynamic_bond.sum()} reactions where the number of dynamic bonds are greater than {DYNAMIC_BOND_LIMIT}"
+)
+
+# %%
+info = data["id"].str.extract(r"_P(?P<product_no>\d)$", expand=False)
+prod_val = info[~info.isna()].astype(int)
+prod_sel = prod_val > 2
+data_sel = data.index.isin(prod_val[prod_sel].index)
+unique_doc = (
+    data[data_sel]
+    .apply(lambda row: row["id"].split(f"_{row['source']}_")[0], axis=1)
+    .unique()
+)
+sib_sel = data["document_id"].isin(unique_doc)
+print_(f"Removing {sib_sel.sum()} reactions with with more than 2 siblings")
+
+# %%
+NRING_LIMIT = 12
+nrings_sel = data["MaxRings"] > NRING_LIMIT
+print_(f"Removing {nrings_sel.sum()} reactions with with more than {NRING_LIMIT} rings")
+
+
+# %%
 data = data[
     (~sel_likelihood)
+    & (~sel_small)
     & (~sel_big)
     & (~sel_wildcard_atom)
     & (~sel_unchanged)
     & (~sel_radical)
+    & (~unwanted_classes)
+    & (~sel_cgr_creation)
+    & (~sel_dynamic_bond)
+    & (~sib_sel)
+    & (~nrings_sel)
 ]
 
 # %%

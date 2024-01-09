@@ -4,8 +4,7 @@ from typing import Optional, Sequence
 
 import pandas as pd
 from rxnutils.chem.reaction import ChemicalReaction, ReactionException
-
-from aizynthtrain.utils.files import read_csv_batch
+from rxnutils.data.batch_utils import read_csv_batch
 
 
 def generate_templates(

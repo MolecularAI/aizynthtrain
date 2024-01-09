@@ -2,6 +2,7 @@
 from pathlib import Path
 
 from metaflow import FlowSpec, Parameter, step
+from rxnutils.data.batch_utils import combine_sparse_matrix_batches, create_csv_batches
 
 from aizynthtrain.utils.onnx_converter import main as convert_to_onnx
 from aizynthtrain.modelling.expansion_policy.create_template_lib import (
@@ -15,7 +16,6 @@ from aizynthtrain.modelling.expansion_policy.featurize import main as featurize
 from aizynthtrain.modelling.expansion_policy.split_data import main as split_data
 from aizynthtrain.modelling.expansion_policy.training import main as training_runner
 from aizynthtrain.utils.configs import ExpansionModelPipelineConfig, load_config
-from aizynthtrain.utils.files import combine_sparse_matrix_batches, create_csv_batches
 from aizynthtrain.utils.reporting import main as report_runner
 
 
@@ -127,14 +127,10 @@ class ExpansionModelFlow(FlowSpec):
         )
 
     def _combine_batches(self, filename):
-        if Path(filename).exists():
-            return
         combine_sparse_matrix_batches(filename, self.config.nbatches)
 
     def _create_batches(self, input_filename, output_filename):
-        if Path(output_filename).exists():
-            return [(-1, None, None)]
-        return create_csv_batches(input_filename, self.config.nbatches)
+        return create_csv_batches(input_filename, self.config.nbatches, output_filename)
 
 
 if __name__ == "__main__":

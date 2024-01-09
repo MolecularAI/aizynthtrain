@@ -99,6 +99,8 @@ Please use ``black`` package for formatting, and follow ``pep8`` style guide.
 ## Contributors
 
 * [@SGenheden](https://www.github.com/SGenheden)
+* [@lakshidaa](https://github.com/lakshidaa)
+* [@anniewesterlund](https://www.github.com/anniewesterlund)
 
 The contributors have limited time for support questions, but please do not hesitate to submit an issue (see above).
 
