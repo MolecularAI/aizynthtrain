@@ -6,19 +6,21 @@ import numpy as np
 from scipy import sparse
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem
+from rxnutils.data.batch_utils import read_csv_batch
 
 from aizynthtrain.utils.configs import (
     ExpansionModelPipelineConfig,
     load_config,
 )
-from aizynthtrain.utils.files import read_csv_batch
 
 
 def _smiles_to_fingerprint(
-    args: Sequence[str], fp_radius: int, fp_length: int
+    args: Sequence[str], fp_radius: int, fp_length: int, chirality: bool = False
 ) -> np.ndarray:
     mol = Chem.MolFromSmiles(args[0])
-    bitvect = AllChem.GetMorganFingerprintAsBitVect(mol, fp_radius, fp_length)
+    bitvect = AllChem.GetMorganFingerprintAsBitVect(
+        mol, fp_radius, fp_length, useChirality=chirality
+    )
     array = np.zeros((1,))
     DataStructs.ConvertToNumpyArray(bitvect, array)
     return array
@@ -44,6 +46,7 @@ def _make_inputs(
         [products],
         fp_length=config.model_hyperparams.fingerprint_length,
         fp_radius=config.model_hyperparams.fingerprint_radius,
+        chirality=config.model_hyperparams.chirality,
     )
     inputs = sparse.lil_matrix(inputs.T).tocsr()
 

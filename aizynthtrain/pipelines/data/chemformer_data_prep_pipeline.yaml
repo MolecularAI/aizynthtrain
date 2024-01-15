@@ -1,0 +1,26 @@
+remove_atom_mapping:
+  in_column: RxnSmilesClean
+  out_column: RxnSmilesNoAtomMap
+split_reaction:
+  in_column: RxnSmilesNoAtomMap
+  out_columns: 
+    - reactants
+    - reagents 
+    - products
+smiles_sanitizable:
+  in_column: reactants
+  out_column: is_reactant_sanitizable
+smiles_sanitizable2:
+  in_column: reagents
+  out_column: is_reagent_sanitizable
+smiles_sanitizable3:
+  in_column: products
+  out_column: is_product_sanitizable
+drop_rows:
+  indicator_columns:
+    - is_reactant_sanitizable
+    - is_reagent_sanitizable
+    - is_product_sanitizable
+drop_columns:
+  columns:
+    - RxnSmilesNoAtomMap

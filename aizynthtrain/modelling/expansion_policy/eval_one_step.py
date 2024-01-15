@@ -20,9 +20,8 @@ from aizynthtrain.utils.configs import (
     load_config,
 )
 
-YAML_TEMPLATE = """policy:
-  files:
-    default:
+YAML_TEMPLATE = """expansion:
+  default:
       - {}
       - {}
 """
@@ -49,6 +48,8 @@ def _create_test_reaction(config: ExpansionModelEvaluationConfig) -> str:
 
     test_lib_path = config.filename("library", "testing")
     data = pd.read_csv(test_lib_path, sep="\t")
+    if config.columns.ring_breaker not in data.columns:
+        data[config.columns.ring_breaker] = [False] * len(data)
     trunc_class = data[config.columns.classification].apply(
         lambda x: ".".join(x.split(" ")[0].split(".")[:2])
     )
@@ -88,7 +89,7 @@ def _eval_expander(
 
     stats = defaultdict(list)
     for (_, row), output in zip(ref_reactions.iterrows(), expander_output):
-        reactants, product = row[config.columns.reaction_smiles].split(">>")
+        reactants, _, product = row[config.columns.reaction_smiles].split(">")
         nrings_prod = CalcNumRings(Chem.MolFromSmiles(product))
         reactants_inchis = set(
             Chem.MolToInchiKey(Chem.MolFromSmiles(smi)) for smi in reactants.split(".")
@@ -137,7 +138,7 @@ def _run_expander(
 ) -> List[Dict[str, Any]]:
     ref_reactions = pd.read_csv(ref_reactions_path, sep="\t")
     targets = [
-        rxn.split(">>")[1] for rxn in ref_reactions[config.columns.reaction_smiles]
+        rxn.split(">")[-1] for rxn in ref_reactions[config.columns.reaction_smiles]
     ]
 
     expander = AiZynthExpander(configfile=config_path)

@@ -22,11 +22,9 @@ def _create_config(
 ) -> str:
     _, filename = tempfile.mkstemp(suffix=".yaml")
     dict_ = {
-        "policy": {
-            "files": {"default": [model_path, templates_path]},
-        },
-        "stock": {"files": {"default": stock_path}},
-        "properties": properties,
+        "expansion": {"default": [model_path, templates_path]},
+        "stock": {"default": stock_path},
+        "search": properties,
     }
     with open(filename, "w") as fileobj:
         yaml.dump(dict_, fileobj)
@@ -123,7 +121,7 @@ def main(args: Optional[Sequence[str]] = None) -> None:
             args.model_path or config.filename("onnx_model"),
             args.templates_path or config.filename("unique_templates"),
             config.stock_for_finding,
-            config.properties_for_finding,
+            config.search_properties_for_finding,
         )
 
         stats = _eval_finding(config, finder_config_path)
@@ -134,7 +132,7 @@ def main(args: Optional[Sequence[str]] = None) -> None:
             args.model_path or config.filename("onnx_model"),
             args.templates_path or config.filename("unique_templates"),
             config.stock_for_recovery,
-            config.properties_for_recovery,
+            config.search_properties_for_recovery,
         )
 
         stats = _eval_recovery(config, finder_config_path)

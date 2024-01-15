@@ -9,6 +9,7 @@ This module contains scripts to generate metadata artifacts for a template libra
 """
 import argparse
 import json
+from collections import defaultdict
 from typing import Sequence, Optional, Dict, List
 
 import pandas as pd
@@ -46,11 +47,14 @@ def _make_template_dataset(
         template_set: str,
         metadata_columns: List[str],
     ) -> pd.Series:
-        refs = sorted(
-            id_
-            for pseudo_hash in group[columns.reaction_hash]
-            for id_ in id_lookup[pseudo_hash]
-        )
+        if id_lookup:
+            refs = sorted(
+                id_
+                for pseudo_hash in group[columns.reaction_hash]
+                for id_ in id_lookup[pseudo_hash]
+            )
+        else:
+            refs = []
         dict_ = {
             "_id": group[columns.template_hash].iloc[0],
             "count": len(refs),
@@ -66,8 +70,11 @@ def _make_template_dataset(
             dict_[column] = group[column].iloc[0]
         return pd.Series(dict_)
 
-    with open(config.selected_ids_path, "r") as fileobj:
-        pseudo_hash_to_id = json.load(fileobj)
+    if config.selected_ids_path:
+        with open(config.selected_ids_path, "r") as fileobj:
+            pseudo_hash_to_id = json.load(fileobj)
+    else:
+        pseudo_hash_to_id = None
 
     columns = config.library_config.columns
     lookup = dataset.groupby(columns.template_hash).apply(
