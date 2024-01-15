@@ -74,7 +74,7 @@ class ChemformerTrainConfig(BaseModel):
     """Configuration class for chemformer training"""
 
     data_path: str = "proc_selected_reactions.csv"
-    vocabulary_path: str = "bart_vocab_disconnection_aware.json"
+    vocabulary_path: str = "bart_vocab_downstream.json"
     task: str = "backward_prediction"
     model_path: Optional[str] = None
     deepspeed_config_path: str = "ds_config.json"
