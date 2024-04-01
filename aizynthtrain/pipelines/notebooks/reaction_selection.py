@@ -243,15 +243,16 @@ print_(
 # %%
 info = data["id"].str.extract(r"_P(?P<product_no>\d)$", expand=False)
 prod_val = info[~info.isna()].astype(int)
-prod_sel = prod_val > 2
-data_sel = data.index.isin(prod_val[prod_sel].index)
-unique_doc = (
-    data[data_sel]
-    .apply(lambda row: row["id"].split(f"_{row['source']}_")[0], axis=1)
-    .unique()
-)
-sib_sel = data["document_id"].isin(unique_doc)
-print_(f"Removing {sib_sel.sum()} reactions with with more than 2 siblings")
+if len(prod_val) > 0 and "document_id" in data.columns:
+    prod_sel = prod_val > 2
+    data_sel = data.index.isin(prod_val[prod_sel].index)
+    unique_doc = (
+        data[data_sel]
+        .apply(lambda row: row["id"].split(f"_{row['source']}_")[0], axis=1)
+        .unique()
+    )
+    sib_sel = data["document_id"].isin(unique_doc)
+    print_(f"Removing {sib_sel.sum()} reactions with with more than 2 siblings")
 
 # %%
 NRING_LIMIT = 12
