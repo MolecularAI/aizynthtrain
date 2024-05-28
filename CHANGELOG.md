@@ -7,6 +7,10 @@
 - Adding pipeine for creating dataset for disconnection-aware Chemformer model.
 - Fine-tuning of Chemformer has been updated to support Hydra configuration.
 
+### Bug-fixes
+
+- Fixed an issue in the template pipeline when sibling reaction information is not available.
+
 ## Version 0.2.0 - 2024-01-09
 
 ### Features
