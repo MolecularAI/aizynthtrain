@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## Version 0.3.0 - 2024-05-28
+
+### Features
+
+- Adding pipeine for creating dataset for disconnection-aware Chemformer model.
+- Fine-tuning of Chemformer has been updated to support Hydra configuration.
+
 ## Version 0.2.0 - 2024-01-09
 
 ### Features
