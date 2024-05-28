@@ -1,0 +1,8 @@
+drop_columns:
+  columns:
+    - reactants
+rename_columns:
+  in_columns:
+    - products_untagged
+  out_columns:
+    - reactants
