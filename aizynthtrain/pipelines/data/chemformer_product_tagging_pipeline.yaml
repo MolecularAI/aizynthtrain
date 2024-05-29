@@ -1,0 +1,29 @@
+atom_map_tag_disconnection_site:
+  in_column: RxnSmilesClean
+  out_column: products_atom_map_tagged
+convert_atom_map_disconnection_tag:
+  in_column: products_atom_map_tagged
+  out_column_tagged: products_tagged
+  out_column_reconstructed: products_reconstructed
+smiles_sanitizable:
+  in_column: products_reconstructed
+  out_column: is_product_sanitizable
+smiles_sanitizable2:
+  in_column: reactants
+  out_column: is_reactant_sanitizable
+drop_rows:
+  indicator_columns:
+    - is_product_sanitizable
+    - is_reactant_sanitizable
+drop_columns:
+  columns:
+    - is_product_sanitizable
+    - is_reactant_sanitizable
+    - products_reconstructed
+rename_columns:
+  in_columns:
+    - products_tagged
+    - products
+  out_columns:
+    - products
+    - products_untagged

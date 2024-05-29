@@ -31,7 +31,7 @@ class ChemformerTrainFlow(FlowSpec):
             if "CONDA_PATH" in os.environ:
                 cmd = os.environ["CONDA_PATH"] + cmd
 
-        subprocess.check_call(cmd.split())
+        subprocess.check_call(cmd, shell=True)
         self.next(self.end)
 
     @step
@@ -44,7 +44,11 @@ class ChemformerTrainFlow(FlowSpec):
         """Get argument string for running fine-tuning python script from config."""
         args = []
         for param in self.config:
-            args.append(f"--{param[0]} {param[1]}")
+            if param[0] == "model_path":
+                value = param[1].replace("=", "\=")
+                args.append(f"'{param[0]}={value}'")
+                continue
+            args.append(f"'{param[0]}={param[1]}'")
 
         prompt = " ".join(args)
         return prompt

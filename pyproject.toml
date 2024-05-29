@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aizynthtrain"
-version = "0.2.0"
+version = "0.3.0"
 description = "Tools to train reaction predictions models for AiZynthFinder"
 authors = ["Genheden, Samuel <samuel.genheden@astrazeneca.com>"]
 license = "Apache 2.0"

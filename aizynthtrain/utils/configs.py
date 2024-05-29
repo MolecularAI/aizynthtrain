@@ -74,30 +74,28 @@ class ChemformerTrainConfig(BaseModel):
     """Configuration class for chemformer training"""
 
     data_path: str = "proc_selected_reactions.csv"
-    vocabulary_path: str = "bart_vocab_downstream.json"
+    vocabulary_path: str = "bart_vocab_disconnection_aware.json"
     task: str = "backward_prediction"
     model_path: Optional[str] = None
     deepspeed_config_path: str = "ds_config.json"
     output_directory: str = ""
 
     n_epochs: int = 70
+    resume: bool = False
     n_gpus: int = 1
     batch_size: int = 64
     augmentation_probability: float = 0.5
     learning_rate: float = 0.001
 
     check_val_every_n_epoch: int = 1
-    checkpoint_every_n_step: int = 25000
     limit_val_batches: float = 1.0
-    augmentation_strategy: str = "all"
     n_nodes: int = 1
     acc_batches: int = 4
     schedule: str = "cycle"
-    dataset_type: str = "synthesis"
 
     # Arguments for model from random initialization
     d_model: int = 512
-    n_layer: int = 6
+    n_layers: int = 6
     n_heads: int = 8
     d_feedforward: int = 2048
 
@@ -112,6 +110,8 @@ class ChemformerDataPrepConfig(BaseModel):
     random_seed: int = 11
     nbatches: int = 200
     chemformer_data_path: str = "proc_selected_reactions.csv"
+    disconnection_aware_data_path: str = "proc_selected_reactions_disconnection.csv"
+    autotag_data_path: str = "proc_selected_reactions_autotag.csv"
 
     reaction_hash_col: str = "reaction_hash"
     set_col: str = "set"
